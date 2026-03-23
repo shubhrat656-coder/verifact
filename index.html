@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VeriFact — AI News Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0d0d0d;
+    --ink2: #3a3a3a;
+    --ink3: #7a7a7a;
+    --paper: #f5f0e8;
+    --paper2: #ede8dc;
+    --paper3: #e2dcd0;
+    --red: #c0392b;
+    --red-light: #fdf0ef;
+    --green: #1a6b3c;
+    --green-light: #edf7f1;
+    --amber: #b8520a;
+    --amber-light: #fef6ec;
+    --blue: #1a3f6b;
+    --blue-light: #edf2fb;
+    --accent: #c0392b;
+    --border: rgba(0,0,0,0.12);
+    --serif: 'Playfair Display', Georgia, serif;
+    --sans: 'DM Sans', system-ui, sans-serif;
+    --mono: 'DM Mono', monospace;
+    --shadow: 0 2px 16px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 40px rgba(0,0,0,0.14);
+    --radius: 4px;
+    --radius-lg: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ── MASTHEAD ── */
+  .masthead {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 0;
+    border-bottom: 3px solid var(--accent);
+  }
+  .masthead-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 32px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    font-family: var(--mono);
+    letter-spacing: 0.05em;
+  }
+  .masthead-top a { color: rgba(255,255,255,0.5); text-decoration: none; }
+  .masthead-main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 32px 20px;
+  }
+  .logo {
+    font-family: var(--serif);
+    font-size: 42px;
+    font-weight: 900;
+    letter-spacing: -1px;
+    line-height: 1;
+  }
+  .logo span { color: var(--accent); }
+  .logo-tagline {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: rgba(255,255,255,0.45);
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+  .live-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--accent);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 2px;
+    font-size: 11px;
+    font-family: var(--mono);
+    letter-spacing: 0.12em;
+    font-weight: 500;
+  }
+  .live-dot {
+    width: 7px; height: 7px;
+    background: white;
+    border-radius: 50%;
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .nav-bar {
+    display: flex;
+    gap: 0;
+    padding: 0 32px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    overflow-x: auto;
+  }
+  .nav-item {
+    padding: 10px 18px;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.55);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+  .nav-item:hover { color: rgba(255,255,255,0.9); }
+  .nav-item.active { color: white; border-bottom-color: var(--accent); }
+
+  /* ── BREAKING NEWS TICKER ── */
+  .ticker-wrap {
+    background: var(--accent);
+    color: white;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    height: 36px;
+  }
+  .ticker-label {
+    background: rgba(0,0,0,0.3);
+    padding: 0 14px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    font-size: 11px;
+    font-family: var(--mono);
+    letter-spacing: 0.15em;
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-weight: 500;
+  }
+  .ticker-track {
+    overflow: hidden;
+    flex: 1;
+    position: relative;
+  }
+  .ticker-inner {
+    display: flex;
+    animation: ticker 40s linear infinite;
+    white-space: nowrap;
+  }
+  .ticker-inner:hover { animation-play-state: paused; }
+  .ticker-item {
+    font-size: 12px;
+    padding: 0 28px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+  }
+  .ticker-item::before { content: '◆'; margin-right: 10px; font-size: 8px; opacity: 0.6; }
+  @keyframes ticker { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+
+  /* ── MAIN LAYOUT ── */
+  .main-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 28px 24px;
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 28px;
+  }
+
+  /* ── VERIFIER PANEL ── */
+  .verifier {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .verifier-header {
+    background: var(--ink);
+    color: white;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .verifier-title {
+    font-family: var(--serif);
+    font-size: 18px;
+    font-style: italic;
+  }
+  .verifier-subtitle {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 0.12em;
+    margin-top: 2px;
+  }
+  .ai-badge {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 4px 10px;
+    border-radius: 2px;
+    font-size: 10px;
+    font-family: var(--mono);
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.7);
+  }
+  .verifier-body { padding: 24px; }
+
+  .input-area {
+    width: 100%;
+    min-height: 120px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    font-family: var(--sans);
+    font-size: 15px;
+    color: var(--ink);
+    background: var(--paper);
+    resize: vertical;
+    line-height: 1.6;
+    transition: border-color 0.2s;
+  }
+  .input-area:focus {
+    outline: none;
+    border-color: var(--ink);
+    background: white;
+  }
+  .input-area::placeholder { color: var(--ink3); }
+
+  .input-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 12px;
+  }
+  .char-count {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink3);
+  }
+  .example-pills {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .pill {
+    font-size: 11px;
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    cursor: pointer;
+    color: var(--ink2);
+    background: var(--paper);
+    transition: all 0.15s;
+    font-family: var(--mono);
+    letter-spacing: 0.03em;
+  }
+  .pill:hover { background: var(--ink); color: white; border-color: var(--ink); }
+
+  .analyze-btn {
+    width: 100%;
+    margin-top: 16px;
+    padding: 14px;
+    background: var(--ink);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+    position: relative;
+    overflow: hidden;
+  }
+  .analyze-btn:hover { background: #222; transform: translateY(-1px); }
+  .analyze-btn:active { transform: translateY(0); }
+  .analyze-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .analyze-btn .spinner {
+    display: none;
+    width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 0 auto;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── RESULT PANEL ── */
+  .result-panel {
+    margin-top: 20px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    display: none;
+  }
+  .result-panel.visible { display: block; }
+
+  .verdict-bar {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .verdict-bar.fake { background: var(--red-light); border-bottom: 2px solid var(--red); }
+  .verdict-bar.real { background: var(--green-light); border-bottom: 2px solid var(--green); }
+  .verdict-bar.uncertain { background: var(--amber-light); border-bottom: 2px solid var(--amber); }
+
+  .verdict-icon {
+    font-size: 28px;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .verdict-bar.fake .verdict-icon { background: var(--red); }
+  .verdict-bar.real .verdict-icon { background: var(--green); }
+  .verdict-bar.uncertain .verdict-icon { background: var(--amber); }
+
+  .verdict-label {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+  .verdict-bar.fake .verdict-label { color: var(--red); }
+  .verdict-bar.real .verdict-label { color: var(--green); }
+  .verdict-bar.uncertain .verdict-label { color: var(--amber); }
+
+  .verdict-sub { font-size: 12px; color: var(--ink3); margin-top: 2px; font-family: var(--mono); }
+
+  .confidence-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+  .confidence-label { font-family: var(--mono); font-size: 10px; color: var(--ink3); letter-spacing: 0.1em; }
+  .confidence-ring {
+    width: 56px; height: 56px;
+    position: relative;
+  }
+  .confidence-ring svg { transform: rotate(-90deg); }
+  .confidence-ring .pct {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 500;
+    transform: none;
+  }
+  .confidence-ring svg { position: absolute; inset: 0; }
+
+  .result-body { padding: 20px; }
+
+  .result-section { margin-bottom: 18px; }
+  .result-section:last-child { margin-bottom: 0; }
+  .result-section-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--paper3);
+  }
+  .result-text {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--ink2);
+  }
+
+  .flag-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .flag-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--ink2);
+    line-height: 1.5;
+  }
+  .flag-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+    margin-top: 6px;
+  }
+
+  .signal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .signal-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .signal-name {
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--ink3);
+    letter-spacing: 0.05em;
+  }
+  .signal-bar-wrap { height: 4px; background: var(--paper3); border-radius: 2px; overflow: hidden; }
+  .signal-bar { height: 4px; border-radius: 2px; transition: width 0.8s cubic-bezier(.4,0,.2,1); }
+  .signal-bar.low { background: var(--green); }
+  .signal-bar.mid { background: var(--amber); }
+  .signal-bar.high { background: var(--red); }
+  .signal-val { font-size: 12px; font-family: var(--mono); font-weight: 500; }
+
+  /* ── BREAKING NEWS SECTION ── */
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 24px 0 16px;
+  }
+  .section-divider-label {
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 700;
+    white-space: nowrap;
+    font-style: italic;
+  }
+  .section-divider-line { flex: 1; height: 1px; background: var(--border); }
+  .section-divider-tag {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: white;
+    background: var(--accent);
+    padding: 3px 8px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+
+  .breaking-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .breaking-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+  }
+  .breaking-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+  .breaking-card.featured { grid-column: 1/-1; display: grid; grid-template-columns: 1fr 1fr; }
+  .breaking-img {
+    aspect-ratio: 16/9;
+    background: var(--paper3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink3);
+    font-size: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .breaking-card.featured .breaking-img { aspect-ratio: auto; min-height: 200px; }
+  .breaking-img-gradient {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.4) 100%);
+  }
+  .breaking-content { padding: 14px 16px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+  .breaking-card.featured .breaking-content { padding: 20px 22px; justify-content: center; }
+  .category-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 2px;
+    font-weight: 500;
+    width: fit-content;
+  }
+  .tag-politics { background: #fef0f0; color: #c0392b; }
+  .tag-science  { background: #edf7f1; color: #1a6b3c; }
+  .tag-tech     { background: #edf2fb; color: #1a3f6b; }
+  .tag-health   { background: #fef6ec; color: #b8520a; }
+  .tag-world    { background: #f5f0fe; color: #5b21b6; }
+  .tag-local    { background: #0d0d0d; color: #f5f0e8; }
+
+  .breaking-headline {
+    font-family: var(--serif);
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--ink);
+  }
+  .breaking-card.featured .breaking-headline { font-size: 20px; }
+  .breaking-headline { font-size: 15px; }
+
+  .breaking-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: auto;
+    font-size: 11px;
+    color: var(--ink3);
+    font-family: var(--mono);
+  }
+  .breaking-meta-dot { width: 3px; height: 3px; background: var(--ink3); border-radius: 50%; }
+  .breaking-excerpt { font-size: 13px; color: var(--ink2); line-height: 1.6; }
+
+  .verify-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    cursor: pointer;
+    margin-top: 6px;
+    border: none;
+    background: none;
+    padding: 0;
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+  .verify-link:hover { text-decoration: underline; }
+
+  /* ── SIDEBAR ── */
+  .sidebar { display: flex; flex-direction: column; gap: 20px; }
+
+  .sidebar-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .sidebar-card-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .sidebar-card-title {
+    font-family: var(--serif);
+    font-size: 15px;
+    font-weight: 700;
+    font-style: italic;
+  }
+  .sidebar-card-tag {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    color: var(--ink3);
+    text-transform: uppercase;
+  }
+  .sidebar-card-body { padding: 14px 16px; }
+
+  /* Local news */
+  .local-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--paper2);
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .local-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .local-item:first-child { padding-top: 0; }
+  .local-item:hover { opacity: 0.8; }
+  .local-num {
+    font-family: var(--serif);
+    font-size: 24px;
+    font-weight: 900;
+    color: var(--paper3);
+    line-height: 1;
+    flex-shrink: 0;
+    width: 28px;
+  }
+  .local-content { flex: 1; }
+  .local-headline { font-size: 13px; font-weight: 600; line-height: 1.4; color: var(--ink); margin-bottom: 4px; }
+  .local-meta { font-size: 11px; color: var(--ink3); font-family: var(--mono); }
+
+  /* Stats widget */
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat-card {
+    background: var(--paper);
+    border-radius: var(--radius);
+    padding: 12px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: var(--serif);
+    font-size: 28px;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--ink);
+  }
+  .stat-label { font-size: 10px; font-family: var(--mono); color: var(--ink3); margin-top: 4px; letter-spacing: 0.08em; }
+  .stat-trend { font-size: 11px; margin-top: 4px; font-family: var(--mono); }
+  .trend-up { color: var(--red); }
+  .trend-down { color: var(--green); }
+
+  /* Trending topics */
+  .trending-list { display: flex; flex-direction: column; gap: 0; }
+  .trending-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--paper2);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .trending-item:last-child { border-bottom: none; }
+  .trending-item:hover { color: var(--accent); }
+  .trending-rank {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink3);
+    width: 14px;
+    flex-shrink: 0;
+  }
+  .trending-text { font-size: 13px; font-weight: 500; flex: 1; }
+  .trending-count { font-family: var(--mono); font-size: 10px; color: var(--ink3); }
+  .trending-heat {
+    width: 32px; height: 3px;
+    background: var(--paper3);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .trending-heat-fill { height: 100%; background: var(--accent); border-radius: 2px; }
+
+  /* Loading skeleton */
+  @keyframes shimmer {
+    0% { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+  }
+  .skeleton {
+    background: linear-gradient(90deg, var(--paper2) 25%, var(--paper) 50%, var(--paper2) 75%);
+    background-size: 400px 100%;
+    animation: shimmer 1.4s ease-in-out infinite;
+    border-radius: var(--radius);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--ink);
+    color: rgba(255,255,255,0.4);
+    text-align: center;
+    padding: 20px 32px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    margin-top: 40px;
+  }
+  footer span { color: rgba(255,255,255,0.7); }
+
+  /* ── LOADING STATE ── */
+  .loading-overlay {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 28px 20px;
+    text-align: center;
+  }
+  .loading-overlay.visible { display: flex; }
+  .loading-logo {
+    font-family: var(--serif);
+    font-size: 16px;
+    font-style: italic;
+    color: var(--ink2);
+  }
+  .loading-bar-wrap {
+    width: 100%;
+    height: 2px;
+    background: var(--paper2);
+    border-radius: 1px;
+    overflow: hidden;
+  }
+  .loading-bar {
+    height: 100%;
+    background: var(--ink);
+    border-radius: 1px;
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+  .loading-step {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink3);
+    letter-spacing: 0.1em;
+  }
+
+  @media (max-width: 860px) {
+    .main-wrap { grid-template-columns: 1fr; }
+    .breaking-grid { grid-template-columns: 1fr; }
+    .breaking-card.featured { grid-template-columns: 1fr; }
+    .masthead-main { flex-direction: column; gap: 10px; align-items: flex-start; }
+    .logo { font-size: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- MASTHEAD -->
+<header class="masthead">
+  <div class="masthead-top">
+    <span id="live-date"></span>
+    <span>AI-Powered News Intelligence Platform</span>
+    <span>New Delhi, India</span>
+  </div>
+  <div class="masthead-main">
+    <div>
+      <div class="logo">Veri<span>Fact</span></div>
+      <div class="logo-tagline">Truth Intelligence · Est. 2025</div>
+    </div>
+    <div class="live-badge">
+      <div class="live-dot"></div>
+      LIVE · AI ACTIVE
+    </div>
+  </div>
+  <nav class="nav-bar">
+    <div class="nav-item active" onclick="setNav(this,'top')">Top Stories</div>
+    <div class="nav-item" onclick="setNav(this,'verify')">Verify</div>
+    <div class="nav-item" onclick="setNav(this,'local')">Local</div>
+    <div class="nav-item" onclick="setNav(this,'world')">World</div>
+    <div class="nav-item" onclick="setNav(this,'science')">Science</div>
+    <div class="nav-item" onclick="setNav(this,'politics')">Politics</div>
+  </nav>
+</header>
+
+<!-- BREAKING TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-label">⚡ BREAKING</div>
+  <div class="ticker-track">
+    <div class="ticker-inner" id="ticker">
+      <span class="ticker-item">WHO issues global health advisory on new respiratory pathogen detected in Southeast Asia</span>
+      <span class="ticker-item">India's GDP growth revised upward to 7.4% for current fiscal year, Finance Ministry announces</span>
+      <span class="ticker-item">Supreme Court delivers landmark ruling on digital privacy and government surveillance powers</span>
+      <span class="ticker-item">SpaceX successfully lands Starship booster for sixth consecutive time at Cape Canaveral</span>
+      <span class="ticker-item">Delhi Air Quality Index drops to 'Good' category for the first time this winter season</span>
+      <span class="ticker-item">RBI holds repo rate steady at 6.5%, signals potential cuts in next monetary policy meeting</span>
+      <span class="ticker-item">WHO issues global health advisory on new respiratory pathogen detected in Southeast Asia</span>
+      <span class="ticker-item">India's GDP growth revised upward to 7.4% for current fiscal year, Finance Ministry announces</span>
+      <span class="ticker-item">Supreme Court delivers landmark ruling on digital privacy and government surveillance powers</span>
+      <span class="ticker-item">SpaceX successfully lands Starship booster for sixth consecutive time at Cape Canaveral</span>
+      <span class="ticker-item">Delhi Air Quality Index drops to 'Good' category for the first time this winter season</span>
+      <span class="ticker-item">RBI holds repo rate steady at 6.5%, signals potential cuts in next monetary policy meeting</span>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-wrap">
+
+  <!-- LEFT: Verifier + Breaking News -->
+  <div>
+
+    <!-- VERIFIER -->
+    <div class="verifier">
+      <div class="verifier-header">
+        <div>
+          <div class="verifier-title">AI Fact Verification Engine</div>
+          <div class="verifier-subtitle">POWERED BY CLAUDE AI · REAL-TIME ANALYSIS</div>
+        </div>
+        <div class="ai-badge">CLAUDE SONNET</div>
+      </div>
+      <div class="verifier-body">
+        <textarea
+          class="input-area"
+          id="news-input"
+          placeholder="Paste a news headline, statement, or article text to verify…&#10;&#10;e.g. 'Scientists discover that drinking coffee reverses aging by 20 years'"
+          oninput="updateCharCount()"
+        ></textarea>
+        <div class="input-footer">
+          <span class="char-count"><span id="char-count">0</span> characters</span>
+          <div class="example-pills">
+            <span class="pill" onclick="loadExample(0)">Example 1</span>
+            <span class="pill" onclick="loadExample(1)">Example 2</span>
+            <span class="pill" onclick="loadExample(2)">Example 3</span>
+          </div>
+        </div>
+        <button class="analyze-btn" id="analyze-btn" onclick="analyzeNews()">
+          <span id="btn-text">◉ Analyze for Misinformation</span>
+          <div class="spinner" id="btn-spinner"></div>
+        </button>
+
+        <!-- Loading State -->
+        <div class="loading-overlay" id="loading-overlay">
+          <div class="loading-logo">Analyzing claim with AI…</div>
+          <div class="loading-bar-wrap"><div class="loading-bar" id="loading-bar"></div></div>
+          <div class="loading-step" id="loading-step">Initializing fact-check engine…</div>
+        </div>
+
+        <!-- Result Panel -->
+        <div class="result-panel" id="result-panel">
+          <div class="verdict-bar" id="verdict-bar">
+            <div class="verdict-icon" id="verdict-icon"></div>
+            <div>
+              <div class="verdict-label" id="verdict-label"></div>
+              <div class="verdict-sub" id="verdict-sub"></div>
+            </div>
+            <div class="confidence-row">
+              <div class="confidence-label">CONFIDENCE</div>
+              <div class="confidence-ring">
+                <svg width="56" height="56" viewBox="0 0 56 56">
+                  <circle cx="28" cy="28" r="22" fill="none" stroke="var(--paper3)" stroke-width="4"/>
+                  <circle cx="28" cy="28" r="22" fill="none" stroke="currentColor" stroke-width="4"
+                    stroke-dasharray="138.2" stroke-dashoffset="138.2"
+                    stroke-linecap="round" id="conf-circle"/>
+                </svg>
+                <div class="pct" id="conf-pct">0%</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="result-body" id="result-body">
+            <div class="result-section">
+              <div class="result-section-title">Editorial Assessment</div>
+              <div class="result-text" id="result-summary"></div>
+            </div>
+            <div class="result-section" id="flags-section">
+              <div class="result-section-title">Detected Red Flags</div>
+              <ul class="flag-list" id="flag-list"></ul>
+            </div>
+            <div class="result-section">
+              <div class="result-section-title">Signal Analysis</div>
+              <div class="signal-grid" id="signal-grid"></div>
+            </div>
+            <div class="result-section">
+              <div class="result-section-title">Recommended Action</div>
+              <div class="result-text" id="result-action"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BREAKING NEWS -->
+    <div class="section-divider">
+      <div class="section-divider-label">Breaking Stories</div>
+      <div class="section-divider-line"></div>
+      <div class="section-divider-tag">Live Updates</div>
+    </div>
+
+    <div class="breaking-grid" id="breaking-grid">
+      <!-- Injected by JS -->
+    </div>
+
+    <!-- TOP INDIA NEWS -->
+    <div class="section-divider">
+      <div class="section-divider-label">India Today</div>
+      <div class="section-divider-line"></div>
+      <div class="section-divider-tag">National</div>
+    </div>
+
+    <div class="breaking-grid" id="india-grid">
+    </div>
+
+  </div>
+
+  <!-- RIGHT SIDEBAR -->
+  <aside class="sidebar">
+
+    <!-- Stats -->
+    <div class="sidebar-card">
+      <div class="sidebar-card-header">
+        <div class="sidebar-card-title">Today's Fact-Check Stats</div>
+        <div class="sidebar-card-tag">Live</div>
+      </div>
+      <div class="sidebar-card-body">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-num" id="stat-checked">2,847</div>
+            <div class="stat-label">Claims Checked</div>
+            <div class="stat-trend trend-up">↑ 12% today</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" style="color:var(--red)" id="stat-fake">64%</div>
+            <div class="stat-label">Flagged Fake</div>
+            <div class="stat-trend trend-up">↑ from 58%</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" style="color:var(--green)" id="stat-real">29%</div>
+            <div class="stat-label">Verified Real</div>
+            <div class="stat-trend trend-down">↓ from 33%</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" style="color:var(--amber)">7%</div>
+            <div class="stat-label">Uncertain</div>
+            <div class="stat-trend">→ steady</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Local News -->
+    <div class="sidebar-card">
+      <div class="sidebar-card-header">
+        <div class="sidebar-card-title">Local · New Delhi</div>
+        <div class="sidebar-card-tag" style="background:#0d0d0d;color:#f5f0e8;padding:2px 8px;border-radius:2px;font-size:9px;letter-spacing:.1em;">YOUR CITY</div>
+      </div>
+      <div class="sidebar-card-body">
+        <div class="trending-list" id="local-list">
+          <!-- Injected -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Trending Topics -->
+    <div class="sidebar-card">
+      <div class="sidebar-card-header">
+        <div class="sidebar-card-title">Trending Misinformation</div>
+        <div class="sidebar-card-tag">By Volume</div>
+      </div>
+      <div class="sidebar-card-body">
+        <div class="trending-list" id="trending-list"></div>
+      </div>
+    </div>
+
+    <!-- How It Works -->
+    <div class="sidebar-card" style="background:var(--ink);color:white;border-color:transparent;">
+      <div class="sidebar-card-header" style="border-color:rgba(255,255,255,0.1);">
+        <div class="sidebar-card-title" style="color:white;">How VeriFact Works</div>
+      </div>
+      <div class="sidebar-card-body" style="display:flex;flex-direction:column;gap:12px;">
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <div style="font-family:var(--mono);font-size:18px;font-weight:500;color:var(--accent);width:24px;flex-shrink:0;">1</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.6;">Paste any claim, headline, or article excerpt into the verifier</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <div style="font-family:var(--mono);font-size:18px;font-weight:500;color:var(--accent);width:24px;flex-shrink:0;">2</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.6;">Claude AI cross-references against known fact patterns, checks linguistic signals, and assesses source credibility indicators</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <div style="font-family:var(--mono);font-size:18px;font-weight:500;color:var(--accent);width:24px;flex-shrink:0;">3</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.6;">Receive a verdict with confidence score, red flags, and a recommended course of action</div>
+        </div>
+        <div style="margin-top:4px;padding:10px;background:rgba(255,255,255,0.06);border-radius:var(--radius);border-left:2px solid var(--accent)">
+          <div style="font-size:11px;color:rgba(255,255,255,0.45);font-family:var(--mono);line-height:1.6;">Note: AI analysis is a guide, not a final arbiter. Always cross-reference critical claims with primary sources.</div>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+</div>
+
+<footer>
+  <span>VeriFact</span> · AI-Powered News Intelligence · Powered by Claude AI ·
+  For informational purposes only — always verify through multiple authoritative sources
+</footer>
+
+<script>
+// ── DATE ──
+const now = new Date();
+document.getElementById('live-date').textContent =
+  now.toLocaleDateString('en-IN', {weekday:'long',year:'numeric',month:'long',day:'numeric'}) +
+  ' · ' + now.toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'});
+
+// ── NAV ──
+function setNav(el, section) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ── EXAMPLES ──
+const examples = [
+  "Scientists at Harvard have discovered that drinking three cups of coffee daily can reverse aging by 20 years and cure Alzheimer's disease completely.",
+  "India's ISRO successfully launched the Chandrayaan-3 mission to the Moon's south pole, making India the first country to land near the lunar south pole.",
+  "The government has announced that COVID-19 vaccines contain microchips that allow 5G towers to track every citizen's location in real time."
+];
+function loadExample(i) {
+  document.getElementById('news-input').value = examples[i];
+  updateCharCount();
+}
+function updateCharCount() {
+  const len = document.getElementById('news-input').value.length;
+  document.getElementById('char-count').textContent = len;
+}
+
+// ── LOADING STEPS ──
+const loadingSteps = [
+  'Parsing linguistic patterns…',
+  'Cross-referencing known misinformation signals…',
+  'Analyzing emotional manipulation tactics…',
+  'Checking source credibility indicators…',
+  'Running factual consistency analysis…',
+  'Generating verdict and confidence score…'
+];
+let loadingInterval;
+function startLoading() {
+  const bar = document.getElementById('loading-bar');
+  const step = document.getElementById('loading-step');
+  document.getElementById('loading-overlay').classList.add('visible');
+  let pct = 0; let stepIdx = 0;
+  bar.style.width = '0%';
+  step.textContent = loadingSteps[0];
+  loadingInterval = setInterval(() => {
+    pct = Math.min(pct + Math.random() * 12, 92);
+    bar.style.width = pct + '%';
+    const newStep = Math.floor(pct / 100 * loadingSteps.length);
+    if (newStep !== stepIdx && newStep < loadingSteps.length) {
+      stepIdx = newStep;
+      step.textContent = loadingSteps[stepIdx];
+    }
+  }, 350);
+}
+function stopLoading() {
+  clearInterval(loadingInterval);
+  document.getElementById('loading-bar').style.width = '100%';
+  setTimeout(() => document.getElementById('loading-overlay').classList.remove('visible'), 300);
+}
+
+// ── MAIN ANALYSIS ──
+async function analyzeNews() {
+  const text = document.getElementById('news-input').value.trim();
+  if (!text) { alert('Please enter a news claim or statement to verify.'); return; }
+
+  const btn = document.getElementById('analyze-btn');
+  const btnText = document.getElementById('btn-text');
+  const spinner = document.getElementById('btn-spinner');
+  btn.disabled = true;
+  btnText.style.display = 'none';
+  spinner.style.display = 'block';
+
+  document.getElementById('result-panel').classList.remove('visible');
+  startLoading();
+
+  const systemPrompt = `You are VeriFact, an expert AI misinformation detection system trained in media literacy, fact-checking, and information science.
+
+Analyze the provided news claim or statement and return ONLY a valid JSON object with this exact structure (no markdown, no explanation, just JSON):
+
+{
+  "verdict": "FAKE" | "REAL" | "UNCERTAIN",
+  "confidence": <integer 0-100>,
+  "summary": "<2-3 sentence editorial assessment explaining your verdict in clear, authoritative language>",
+  "redFlags": ["<flag 1>", "<flag 2>", "<flag 3>"],
+  "signals": {
+    "emotionalLanguage": <0-100>,
+    "sourceCredibility": <0-100>,
+    "factualConsistency": <0-100>,
+    "propagandaTechniques": <0-100>
+  },
+  "action": "<1-2 sentence recommended action for the reader>"
+}
+
+For the signals:
+- emotionalLanguage: how much the text uses fear, outrage, or sensationalism (higher = more manipulative)
+- sourceCredibility: how credible the claims appear based on specificity and verifiability (higher = more credible)  
+- factualConsistency: how internally consistent and plausible the facts are (higher = more consistent)
+- propagandaTechniques: degree to which known propaganda techniques are used (higher = more propaganda)
+
+Be precise, evidence-aware, and helpful. Do not hallucinate. If genuinely uncertain, say UNCERTAIN.`;
+
+  try {
+    const response = await fetch('https://YOUR-RENDER-URL.onrender.com/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: `Analyze this claim: "${text}"` }]
+      })
+    });
+
+    const data = await response.json();
+    const raw = data.content[0].text;
+    const cleaned = raw.replace(/```json|```/g, '').trim();
+    const result = JSON.parse(cleaned);
+    stopLoading();
+    renderResult(result);
+  } catch(e) {
+    stopLoading();
+    alert('Analysis failed. Please try again.');
+    console.error(e);
+  } finally {
+    btn.disabled = false;
+    btnText.style.display = 'block';
+    spinner.style.display = 'none';
+  }
+}
+
+function renderResult(r) {
+  const panel = document.getElementById('result-panel');
+  const bar = document.getElementById('verdict-bar');
+  const icon = document.getElementById('verdict-icon');
+  const label = document.getElementById('verdict-label');
+  const sub = document.getElementById('verdict-sub');
+  const circle = document.getElementById('conf-circle');
+  const confPct = document.getElementById('conf-pct');
+
+  // Verdict
+  bar.className = 'verdict-bar ' + r.verdict.toLowerCase();
+  if (r.verdict === 'FAKE') {
+    icon.innerHTML = '✕'; icon.style.color = 'white';
+    label.textContent = 'Likely Misinformation';
+    sub.textContent = 'HIGH RISK · Do not share without verification';
+  } else if (r.verdict === 'REAL') {
+    icon.innerHTML = '✓'; icon.style.color = 'white';
+    label.textContent = 'Appears Credible';
+    sub.textContent = 'LOW RISK · Consistent with known facts';
+  } else {
+    icon.innerHTML = '?'; icon.style.color = 'white';
+    label.textContent = 'Uncertain — Verify';
+    sub.textContent = 'MEDIUM RISK · Requires additional verification';
+  }
+
+  // Confidence ring
+  const circumference = 138.2;
+  const offset = circumference - (r.confidence / 100) * circumference;
+  circle.style.strokeDashoffset = offset;
+  const colorMap = { FAKE: 'var(--red)', REAL: 'var(--green)', UNCERTAIN: 'var(--amber)' };
+  circle.style.color = colorMap[r.verdict];
+  confPct.textContent = r.confidence + '%';
+
+  // Summary
+  document.getElementById('result-summary').textContent = r.summary;
+
+  // Flags
+  const flagList = document.getElementById('flag-list');
+  flagList.innerHTML = '';
+  (r.redFlags || []).forEach(f => {
+    const li = document.createElement('li');
+    li.className = 'flag-item';
+    li.innerHTML = `<div class="flag-dot"></div><span>${f}</span>`;
+    flagList.appendChild(li);
+  });
+  document.getElementById('flags-section').style.display = r.redFlags?.length ? 'block' : 'none';
+
+  // Signals
+  const signalGrid = document.getElementById('signal-grid');
+  signalGrid.innerHTML = '';
+  const sigDefs = [
+    { key: 'emotionalLanguage', label: 'Emotional Language', reverse: true },
+    { key: 'sourceCredibility', label: 'Source Credibility', reverse: false },
+    { key: 'factualConsistency', label: 'Factual Consistency', reverse: false },
+    { key: 'propagandaTechniques', label: 'Propaganda Signals', reverse: true }
+  ];
+  sigDefs.forEach(({ key, label, reverse }) => {
+    const val = r.signals?.[key] ?? 50;
+    const displayVal = reverse ? val : val;
+    const riskVal = reverse ? val : (100 - val);
+    const colorClass = riskVal > 65 ? 'high' : riskVal > 35 ? 'mid' : 'low';
+    const card = document.createElement('div');
+    card.className = 'signal-card';
+    card.innerHTML = `
+      <div class="signal-name">${label}</div>
+      <div class="signal-bar-wrap"><div class="signal-bar ${colorClass}" style="width:${displayVal}%"></div></div>
+      <div class="signal-val" style="color:${colorClass === 'high' ? 'var(--red)' : colorClass === 'mid' ? 'var(--amber)' : 'var(--green)'}">${displayVal}%</div>
+    `;
+    signalGrid.appendChild(card);
+  });
+
+  // Action
+  document.getElementById('result-action').textContent = r.action;
+
+  panel.classList.add('visible');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  // Update stats
+  const cur = parseInt(document.getElementById('stat-checked').textContent.replace(',',''));
+  document.getElementById('stat-checked').textContent = (cur + 1).toLocaleString('en-IN');
+}
+
+// ── BREAKING NEWS DATA ──
+const breakingStories = [
+  {
+    category: 'World', tagClass: 'tag-world', emoji: '🌍',
+    headline: 'G20 Nations Agree to Historic Carbon Neutrality Pact by 2040 in Emergency Climate Summit',
+    excerpt: 'World leaders gathered in emergency session have pledged binding commitments to achieve net-zero emissions a decade ahead of previous targets.',
+    time: '8 min ago', source: 'Reuters', featured: true,
+    claim: 'G20 nations have agreed to a historic carbon neutrality pact requiring net-zero emissions by 2040.'
+  },
+  {
+    category: 'Technology', tagClass: 'tag-tech', emoji: '🤖',
+    headline: 'OpenAI Unveils GPT-5 with Real-Time Reasoning Capabilities',
+    excerpt: 'The new model demonstrates unprecedented performance on complex multi-step reasoning tasks.',
+    time: '23 min ago', source: 'TechCrunch',
+    claim: 'OpenAI has unveiled GPT-5 with real-time reasoning capabilities surpassing human experts.'
+  },
+  {
+    category: 'Health', tagClass: 'tag-health', emoji: '🏥',
+    headline: 'ICMR Study Links Ultra-Processed Food Consumption to 34% Rise in Diabetes Risk',
+    excerpt: 'A landmark five-year study across Indian cities reveals alarming correlations between dietary patterns and metabolic disorders.',
+    time: '41 min ago', source: 'The Hindu',
+    claim: 'An ICMR study found ultra-processed foods linked to 34% rise in diabetes risk in Indian urban populations.'
+  },
+  {
+    category: 'Science', tagClass: 'tag-science', emoji: '🔬',
+    headline: 'ISRO Confirms Water Ice Reserves at Lunar South Pole Are Larger Than Estimated',
+    excerpt: 'Data from the Chandrayaan-3 mission reveals ice concentrations that could support future lunar base operations.',
+    time: '1 hr ago', source: 'ISRO',
+    claim: 'ISRO confirms water ice reserves at the lunar south pole are significantly larger than previously estimated.'
+  }
+];
+
+const indiaStories = [
+  {
+    category: 'Politics', tagClass: 'tag-politics', emoji: '🏛️',
+    headline: 'Parliament Winter Session: Opposition Tables No-Confidence Motion Over Economic Policy',
+    excerpt: 'Opposition parties have united to challenge the government\'s latest economic reform package.',
+    time: '2 hr ago', source: 'NDTV',
+    claim: 'Indian opposition parties have tabled a no-confidence motion over government economic policy.'
+  },
+  {
+    category: 'Science', tagClass: 'tag-science', emoji: '🚀',
+    headline: 'Bengaluru Startup Achieves Breakthrough in Solid-State Battery Technology for EVs',
+    excerpt: 'The startup claims energy density three times higher than current lithium-ion cells at competitive manufacturing costs.',
+    time: '3 hr ago', source: 'Economic Times',
+    claim: 'A Bengaluru startup has achieved a breakthrough in solid-state battery technology with three times higher energy density.'
+  }
+];
+
+function renderBreakingGrid(stories, containerId) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  stories.forEach((story, i) => {
+    const card = document.createElement('div');
+    card.className = 'breaking-card' + (i === 0 && stories[0].featured ? ' featured' : '');
+    card.innerHTML = `
+      <div class="breaking-img">
+        <span style="font-size:${i===0&&story.featured?'48px':'32px'}">${story.emoji}</span>
+        <div class="breaking-img-gradient"></div>
+      </div>
+      <div class="breaking-content">
+        <span class="category-tag ${story.tagClass}">${story.category}</span>
+        <div class="breaking-headline">${story.headline}</div>
+        ${i === 0 && story.featured ? `<div class="breaking-excerpt">${story.excerpt}</div>` : ''}
+        <div class="breaking-meta">
+          <span>${story.source}</span>
+          <div class="breaking-meta-dot"></div>
+          <span>${story.time}</span>
+        </div>
+        <button class="verify-link" onclick="verifyStory('${story.claim.replace(/'/g,"\\'")}')">
+          ◉ Verify this story →
+        </button>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function verifyStory(claim) {
+  document.getElementById('news-input').value = claim;
+  updateCharCount();
+  document.querySelector('[onclick*="verify"]')?.classList.add('active');
+  document.getElementById('analyze-btn').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  setTimeout(() => analyzeNews(), 600);
+}
+
+// ── LOCAL NEWS ──
+const localNews = [
+  { num: '01', headline: 'Delhi Metro Phase IV Extension: Janakpuri West–RK Ashram Line Enters Final Testing', meta: 'Delhi · 30 min ago' },
+  { num: '02', headline: 'CM Announces ₹5,000 Crore Smart Water Grid Project for NCR Suburbs', meta: 'NCR · 1 hr ago' },
+  { num: '03', headline: 'Air Quality Improves to "Good" in ITO and Connaught Place Monitoring Stations', meta: 'Pollution · 2 hr ago' },
+  { num: '04', headline: 'Delhi University Introduces AI Literacy Mandatory Course for All Undergraduates', meta: 'Education · 3 hr ago' },
+  { num: '05', headline: 'Night-Time Economy: Delhi to Allow Select Markets to Operate Till 3 AM on Weekends', meta: 'Commerce · 4 hr ago' }
+];
+
+function renderLocalNews() {
+  const list = document.getElementById('local-list');
+  list.innerHTML = '';
+  localNews.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'local-item';
+    div.innerHTML = `
+      <div class="local-num">${item.num}</div>
+      <div class="local-content">
+        <div class="local-headline">${item.headline}</div>
+        <div class="local-meta">${item.meta}</div>
+      </div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+// ── TRENDING ──
+const trending = [
+  { text: 'Vaccine microchips', count: '14.2K checks', heat: 95 },
+  { text: 'AI job apocalypse 2025', count: '8.7K checks', heat: 82 },
+  { text: 'Government surveillance', count: '7.1K checks', heat: 74 },
+  { text: 'Cancer cure hidden', count: '5.9K checks', heat: 62 },
+  { text: 'Stock market collapse', count: '4.4K checks', heat: 48 },
+  { text: 'Water privatization', count: '3.2K checks', heat: 35 }
+];
+
+function renderTrending() {
+  const list = document.getElementById('trending-list');
+  list.innerHTML = '';
+  trending.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'trending-item';
+    div.onclick = () => {
+      document.getElementById('news-input').value = `Is it true that ${item.text}?`;
+      updateCharCount();
+    };
+    div.innerHTML = `
+      <div class="trending-rank">${i+1}</div>
+      <div class="trending-text">${item.text}</div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+        <div class="trending-count">${item.count}</div>
+        <div class="trending-heat"><div class="trending-heat-fill" style="width:${item.heat}%"></div></div>
+      </div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+// ── INIT ──
+renderBreakingGrid(breakingStories, 'breaking-grid');
+renderBreakingGrid(indiaStories, 'india-grid');
+renderLocalNews();
+renderTrending();
+
+// Live stat ticker
+setInterval(() => {
+  const cur = parseInt(document.getElementById('stat-checked').textContent.replace(/,/g,''));
+  document.getElementById('stat-checked').textContent = (cur + Math.floor(Math.random()*3 + 1)).toLocaleString('en-IN');
+}, 7000);
+
+// Keyboard shortcut
+document.getElementById('news-input').addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') analyzeNews();
+});
+</script>
+</body>
+</html>
