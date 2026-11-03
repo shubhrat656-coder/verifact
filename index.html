@@ -1095,7 +1095,11 @@ For the signals:
 Be precise, evidence-aware, and helpful. Do not hallucinate. If genuinely uncertain, say UNCERTAIN.`;
 
   try {
-    const response = await fetch('https://YOUR-RENDER-URL.onrender.com/analyze', {
+    // Same origin when the page is served by server.js; falls back to the local
+    // proxy if the file was opened directly from disk.
+    const API_BASE = window.VERIFACT_API ||
+      (location.protocol === 'file:' ? 'http://localhost:3001' : '');
+    const response = await fetch(API_BASE + '/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1114,7 +1118,7 @@ Be precise, evidence-aware, and helpful. Do not hallucinate. If genuinely uncert
     renderResult(result);
   } catch(e) {
     stopLoading();
-    alert('Analysis failed. Please try again.');
+    alert('Analysis failed. Check that the proxy is running (npm start) and that ANTHROPIC_API_KEY is set.');
     console.error(e);
   } finally {
     btn.disabled = false;
